@@ -1,4 +1,4 @@
-import AddPlantForm from '../../../components/Form/AddPlantForm'
+import AddPlantForm from "../../../components/Form/AddPlantForm";
 
 const AddPlant = () => {
   return (
@@ -6,7 +6,7 @@ const AddPlant = () => {
       {/* Form */}
       <AddPlantForm />
     </div>
-  )
-}
+  );
+};
 
-export default AddPlant
+export default AddPlant;

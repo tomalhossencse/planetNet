@@ -24,4 +24,4 @@ dist-ssr
 *.sln
 *.sw?
 
-serviceAccountKey.json
+zapshift-update-fb-sdk.json
