@@ -4,7 +4,7 @@ import useAuth from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { useForm } from "react-hook-form";
-import { imgUpload } from "../../utils/ImageUpload";
+import { imgUploadCloudinary } from "../../utils/ImageUpload";
 
 const SignUp = () => {
   const {
@@ -23,12 +23,13 @@ const SignUp = () => {
     const { name, email, password } = data;
     const image = data.image[0];
     try {
+      // store img in imgbb and get url
+      const photoURL = await imgUploadCloudinary(image);
+
+      console.log("cloudinary Response : ", photoURL);
+
       // User Registration
       const result = await createUser(email, password);
-
-      // store img in imgbb and get url
-      const photoURL = await imgUpload(image);
-
       // Save username & profile photo
       await updateUserProfile(name, photoURL);
       console.log(result);

@@ -10,7 +10,7 @@ import { TbFidgetSpinner } from "react-icons/tb";
 
 const AddPlantForm = () => {
   const { user } = useAuth();
-  // useMutation hook usecase
+  // useMutation hook usecase (POST || PUT || PATCH || DELETE)
 
   const {
     isPending,
