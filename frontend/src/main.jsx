@@ -10,7 +10,7 @@ import { Toaster } from "react-hot-toast";
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  <div>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <RouterProvider router={router} />
@@ -18,5 +18,5 @@ createRoot(document.getElementById("root")).render(
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  </StrictMode>,
+  </div>,
 );

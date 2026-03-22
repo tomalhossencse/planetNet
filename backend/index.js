@@ -3,6 +3,7 @@ require("dotenv").config();
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const admin = require("firebase-admin");
+const stripe = require("stripe")(process.env.STRIPE_SCREET_KEY);
 const port = process.env.PORT || 3000;
 
 const decoded = Buffer.from(process.env.FB_SERVICE_KEY, "base64").toString(
@@ -17,16 +18,11 @@ admin.initializeApp({
 const app = express();
 // middleware
 app.use(
-  cors(),
-  //   {
-  //   origin: [
-  //     "http://localhost:5173",
-  //     "http://localhost:5174",
-  //     // "https://b12-m11-session.web.app",
-  //   ],
-  //   credentials: true,
-  //   optionSuccessStatus: 200,
-  // }
+  cors({
+    origin: [process.env.SITE_DOMAIN],
+    credentials: true,
+    optionSuccessStatus: 200,
+  }),
 );
 app.use(express.json());
 
@@ -58,6 +54,7 @@ async function run() {
   try {
     const db = client.db("planetNet");
     const plantCollection = db.collection("plants");
+    const orderCollection = db.collection("orders");
 
     // save a plant data in db
     app.post("/plants", async (req, res) => {
@@ -79,6 +76,96 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await plantCollection.findOne(query);
       res.send(result);
+    });
+
+    // payment endpoints
+
+    app.post("/create-checkout-session", async (req, res) => {
+      const paymentInfo = req.body;
+      console.log(paymentInfo);
+      // res.send(paymentInfo);
+
+      const session = await stripe.checkout.sessions.create({
+        line_items: [
+          {
+            price_data: {
+              currency: "bdt",
+              product_data: {
+                name: paymentInfo?.name,
+                description: paymentInfo?.description,
+                images: [paymentInfo?.image],
+              },
+              unit_amount: paymentInfo?.price * 100,
+            },
+
+            quantity: paymentInfo?.quantity,
+          },
+        ],
+        customer_email: paymentInfo?.customer?.email,
+
+        mode: "payment",
+        metadata: {
+          plantId: paymentInfo?.plantId,
+          customer: paymentInfo?.customer?.email,
+        },
+
+        success_url: `${process.env.SITE_DOMAIN}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.SITE_DOMAIN}/plant/${paymentInfo?.plantId}`,
+      });
+
+      res.send({ url: session.url });
+    });
+
+    app.post("/payment-success", async (req, res) => {
+      const { sessionId } = req.body;
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      // console.log(session);
+
+      const plant = await plantCollection.findOne({
+        _id: new ObjectId(session.metadata.plantId),
+      });
+
+      const orderExist = await orderCollection.findOne({
+        transactionId: session.payment_intent,
+      });
+
+      if (session.status === "complete" && plant && !orderExist) {
+        // save order in db
+        const orderInfo = {
+          plantId: session.metadata.plantId,
+          transactionId: session.payment_intent,
+          customer: session.metadata.customer,
+          status: "pending",
+          name: plant.name,
+          seller: plant.seller,
+          price: session.amount_total / 100,
+          category: plant.category,
+          quantity: 1,
+        };
+        // console.log(orderInfo);
+        const result = await orderCollection.insertOne(orderInfo);
+        // update plant quantity
+        await plantCollection.updateOne(
+          {
+            _id: new ObjectId(session.metadata.plantId),
+          },
+          {
+            $inc: {
+              quantity: -1,
+            },
+          },
+        );
+
+        return res.send({
+          transactionId: session.payment_intent,
+          orderId: result.insertedId,
+        });
+      }
+
+      res.send({
+        transactionId: session.payment_intent,
+        orderId: order._id,
+      });
     });
 
     // Send a ping to confirm a successful connection
