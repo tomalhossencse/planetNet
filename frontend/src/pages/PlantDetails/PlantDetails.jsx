@@ -69,7 +69,10 @@ const PlantDetails = () => {
                 gap-2
               "
           >
-            <div>Seller: {seller?.name}</div>
+            <div>
+              Seller: {seller?.name}
+              <p className="text-sm font-light">{seller?.email}</p>
+            </div>
 
             <img
               className="rounded-full"

@@ -89,7 +89,7 @@ async function run() {
         line_items: [
           {
             price_data: {
-              currency: "bdt",
+              currency: "usd",
               product_data: {
                 name: paymentInfo?.name,
                 description: paymentInfo?.description,
@@ -140,6 +140,7 @@ async function run() {
           seller: plant.seller,
           price: session.amount_total / 100,
           category: plant.category,
+          image: plant.image,
           quantity: 1,
         };
         // console.log(orderInfo);
@@ -166,6 +167,39 @@ async function run() {
         transactionId: session.payment_intent,
         orderId: order._id,
       });
+    });
+
+    // get all orders for a customer by email
+    app.get("/my-orders/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await orderCollection.find({ customer: email }).toArray();
+      res.send(result);
+    });
+
+    // get all orders for a seller by email
+    app.get("/manage-orders/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await orderCollection
+        .find({ "seller.email": email })
+        .toArray();
+      res.send(result);
+    });
+
+    // get all plants for a seller by email
+    app.get("/my-inventory/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await plantCollection
+        .find({ "seller.email": email })
+        .toArray();
+      res.send(result);
+    });
+
+    // delete plant
+
+    app.delete("/my-inventory/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await plantCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
