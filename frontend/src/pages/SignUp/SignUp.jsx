@@ -4,7 +4,7 @@ import useAuth from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { useForm } from "react-hook-form";
-import { imgUploadCloudinary } from "../../utils/ImageUpload";
+import { imgUploadCloudinary, saveOrUpdateUser } from "../../utils/ImageUpload";
 
 const SignUp = () => {
   const {
@@ -30,6 +30,10 @@ const SignUp = () => {
 
       // User Registration
       const result = await createUser(email, password);
+
+      // save user in db
+      await saveOrUpdateUser({ name, image: photoURL, email });
+
       // Save username & profile photo
       await updateUserProfile(name, photoURL);
       console.log(result);
@@ -46,7 +50,14 @@ const SignUp = () => {
   const handleGoogleSignIn = async () => {
     try {
       //User Registration using google
-      await signInWithGoogle();
+      const { user } = await signInWithGoogle();
+
+      // save and update user
+      await saveOrUpdateUser({
+        name: user?.name,
+        image: user?.photoURL,
+        email: user?.email,
+      });
 
       navigate(from, { replace: true });
       toast.success("Signup Successful");

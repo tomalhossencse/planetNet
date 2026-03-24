@@ -39,3 +39,14 @@ export const imgUploadCloudinary = async (imageData) => {
 
   return photoURL;
 };
+
+// save or user update in db
+
+export const saveOrUpdateUser = async (userData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_API_URL}/users`,
+    userData,
+  );
+  console.log(data);
+  return data;
+};

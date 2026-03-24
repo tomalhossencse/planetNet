@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import PlantDataRow from "../../../components/Dashboard/TableRows/PlantDataRow";
 import useAuth from "../../../hooks/useAuth";
 import axios from "axios";
@@ -21,17 +21,47 @@ const MyInventory = () => {
       return res.data;
     },
   });
+
+  const {
+    // isPending,
+    // isError,
+    mutateAsync,
+    reset: mutationReset,
+  } = useMutation({
+    mutationFn: async (id) =>
+      await axios.delete(`${import.meta.env.VITE_API_URL}/my-inventory/${id}`),
+    onSuccess: (data) => {
+      console.log(data.data);
+
+      // show toast
+      toast.success("Plant Deleted Successfully");
+      refetch();
+      mutationReset();
+      // query key invalided
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    onMutate: (payload) => {
+      console.log("I will delete the data------->", payload);
+    },
+    onSettled: (data, error) => {
+      if (data) console.log(data);
+      if (error) console.log(error);
+    },
+    retry: 3,
+  });
   const handleDeletePlant = async (id) => {
     try {
-      const result = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/my-inventory/${id}`,
-      );
-      if (result.data.deletedCount) {
-        refetch();
-        toast.success("Plant Delete Successful");
-      }
+      await mutateAsync(id);
+      // const result = await axios.delete(
+      //   `${import.meta.env.VITE_API_URL}/my-inventory/${id}`,
+      // );
+      // if (result.data.deletedCount) {
+      //   refetch();
+      //   toast.success("Plant Delete Successful");
+      // }
     } catch (error) {
-      toast.error(error);
       console.log(error);
     }
   };

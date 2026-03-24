@@ -55,6 +55,7 @@ async function run() {
     const db = client.db("planetNet");
     const plantCollection = db.collection("plants");
     const orderCollection = db.collection("orders");
+    const userCollection = db.collection("users");
 
     // save a plant data in db
     app.post("/plants", async (req, res) => {
@@ -195,10 +196,40 @@ async function run() {
     });
 
     // delete plant
-
     app.delete("/my-inventory/:id", async (req, res) => {
       const id = req.params.id;
       const result = await plantCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result);
+    });
+
+    //save or update user in db
+
+    app.post("/users", async (req, res) => {
+      const userData = req.body;
+      userData.created_at = new Date().toISOString();
+      userData.last_loggedIn = new Date().toISOString();
+      userData.role = "customer";
+
+      const query = {
+        email: userData.email,
+      };
+
+      const alreadyExists = await userCollection.findOne(query);
+      console.log("users Already Exists ---------->", !!alreadyExists);
+
+      if (alreadyExists) {
+        console.log("updating user Info..........");
+
+        const result = await userCollection.updateOne(query, {
+          $set: {
+            last_loggedIn: new Date().toISOString(),
+          },
+        });
+        return res.send(result);
+      }
+
+      console.log("saving new user Info..........");
+      const result = await userCollection.insertOne(userData);
       res.send(result);
     });
 

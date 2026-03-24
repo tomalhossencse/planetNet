@@ -4,6 +4,7 @@ import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import useAuth from "../../hooks/useAuth";
 import { FcGoogle } from "react-icons/fc";
 import { TbFidgetSpinner } from "react-icons/tb";
+import { saveOrUpdateUser } from "../../utils/ImageUpload";
 
 const Login = () => {
   const { signIn, signInWithGoogle, loading, user, setLoading } = useAuth();
@@ -24,7 +25,14 @@ const Login = () => {
 
     try {
       //User Login
-      await signIn(email, password);
+      const { user } = await signIn(email, password);
+
+      // update user
+      await saveOrUpdateUser({
+        name: user?.name,
+        image: user?.photoURL,
+        email: user?.email,
+      });
 
       navigate(from, { replace: true });
       toast.success("Login Successful");
@@ -38,7 +46,15 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     try {
       //User Registration using google
-      await signInWithGoogle();
+      const { user } = await signInWithGoogle();
+
+      // update user
+      await saveOrUpdateUser({
+        name: user?.name,
+        image: user?.photoURL,
+        email: user?.email,
+      });
+
       navigate(from, { replace: true });
       toast.success("Login Successful");
     } catch (err) {
