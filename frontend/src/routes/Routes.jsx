@@ -15,6 +15,9 @@ import ManageOrders from "../pages/Dashboard/Seller/ManageOrders";
 import MyOrders from "../pages/Dashboard/Customer/MyOrders";
 import { createBrowserRouter } from "react-router";
 import PaymentSuccess from "../pages/Payment/PaymentSuccess";
+import SellerRequests from "../pages/Dashboard/Admin/SellerRequests";
+import SellerRoute from "./SellerRoute";
+import AdminRoute from "./AdminRoute";
 
 export const router = createBrowserRouter([
   {
@@ -52,15 +55,43 @@ export const router = createBrowserRouter([
       },
       {
         path: "add-plant",
-        element: <AddPlant />,
+        element: (
+          <SellerRoute>
+            <AddPlant />
+          </SellerRoute>
+        ),
       },
       {
         path: "my-inventory",
-        element: <MyInventory />,
+        element: (
+          <SellerRoute>
+            <MyInventory />
+          </SellerRoute>
+        ),
+      },
+      {
+        path: "manage-orders",
+        element: (
+          <SellerRoute>
+            <ManageOrders />
+          </SellerRoute>
+        ),
       },
       {
         path: "manage-users",
-        element: <ManageUsers />,
+        element: (
+          <AdminRoute>
+            <ManageUsers />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "seller-requests",
+        element: (
+          <AdminRoute>
+            <SellerRequests />
+          </AdminRoute>
+        ),
       },
       {
         path: "profile",
@@ -69,10 +100,6 @@ export const router = createBrowserRouter([
       {
         path: "my-orders",
         element: <MyOrders />,
-      },
-      {
-        path: "manage-orders",
-        element: <ManageOrders />,
       },
     ],
   },

@@ -5,10 +5,11 @@ import PurchaseModal from "../../components/Modal/PurchaseModal";
 import { useState } from "react";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import LoadingSpinner from "../../components/Shared/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const PlantDetails = () => {
+  const axiosSecure = useAxiosSecure();
   let [isOpen, setIsOpen] = useState(false);
   const { id } = useParams();
   // console.log(id);
@@ -16,9 +17,7 @@ const PlantDetails = () => {
   const { data: plant = {}, isLoading } = useQuery({
     queryKey: ["plant", id],
     queryFn: async () => {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/plants/${id}`,
-      );
+      const res = await axiosSecure.get(`/plants/${id}`);
       return res.data;
     },
   });

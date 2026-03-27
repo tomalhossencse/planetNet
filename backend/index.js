@@ -56,9 +56,34 @@ async function run() {
     const plantCollection = db.collection("plants");
     const orderCollection = db.collection("orders");
     const userCollection = db.collection("users");
+    const sellerRequestCollection = db.collection("sellerRequests");
+
+    // role middleware
+
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.tokenEmail;
+      const user = await userCollection.findOne({ email });
+      if (user?.role !== "admin")
+        return res.status(403).send({
+          message: "Admin only Actions !",
+          role: user?.role,
+        });
+      next();
+    };
+
+    const verifySeller = async (req, res, next) => {
+      const email = req.tokenEmail;
+      const user = await userCollection.findOne({ email });
+      if (user?.role !== "seller")
+        return res.status(403).send({
+          message: "Seller only Actions !",
+          role: user?.role,
+        });
+      next();
+    };
 
     // save a plant data in db
-    app.post("/plants", async (req, res) => {
+    app.post("/plants", verifyJWT, verifySeller, async (req, res) => {
       const plantData = req.body;
       const result = await plantCollection.insertOne(plantData);
       res.send(result);
@@ -120,7 +145,7 @@ async function run() {
     app.post("/payment-success", async (req, res) => {
       const { sessionId } = req.body;
       const session = await stripe.checkout.sessions.retrieve(sessionId);
-      // console.log(session);
+      console.log(session);
 
       const plant = await plantCollection.findOne({
         _id: new ObjectId(session.metadata.plantId),
@@ -171,7 +196,7 @@ async function run() {
     });
 
     // get all orders for a customer by email
-    app.get("/my-orders/:email", async (req, res) => {
+    app.get("/my-orders/:email", verifyJWT, verifySeller, async (req, res) => {
       const email = req.params.email;
       const result = await orderCollection.find({ customer: email }).toArray();
       res.send(result);
@@ -187,13 +212,18 @@ async function run() {
     });
 
     // get all plants for a seller by email
-    app.get("/my-inventory/:email", async (req, res) => {
-      const email = req.params.email;
-      const result = await plantCollection
-        .find({ "seller.email": email })
-        .toArray();
-      res.send(result);
-    });
+    app.get(
+      "/my-inventory/:email",
+      verifyJWT,
+      verifySeller,
+      async (req, res) => {
+        const email = req.params.email;
+        const result = await plantCollection
+          .find({ "seller.email": email })
+          .toArray();
+        res.send(result);
+      },
+    );
 
     // delete plant
     app.delete("/my-inventory/:id", async (req, res) => {
@@ -233,11 +263,67 @@ async function run() {
       res.send(result);
     });
 
+    // get a user's role
+
+    app.get("/user/role", verifyJWT, async (req, res) => {
+      // const email = req.params.email;
+      const result = await userCollection.findOne({ email: req.tokenEmail });
+      res.send({ role: result?.role });
+    });
+
+    // save become seller request
+
+    app.post("/become-seller", verifyJWT, async (req, res) => {
+      const email = req.tokenEmail;
+
+      const alreadyExists = await sellerRequestCollection.findOne({ email });
+      if (alreadyExists)
+        return res
+          .status(409)
+          .send({ message: "Already request Send, Please Wait..." });
+      const result = await sellerRequestCollection.insertOne({ email });
+      res.send(result);
+    });
+
+    // get all seller request for admin
+    app.get("/seller-requests", verifyJWT, verifyAdmin, async (req, res) => {
+      const result = await sellerRequestCollection.find().toArray();
+      res.send(result);
+    });
+
+    // get all user for admin
+    app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
+      const adminEmail = req.tokenEmail;
+
+      const result = await userCollection
+        .find({
+          email: {
+            $ne: adminEmail,
+          },
+        })
+        .toArray();
+      res.send(result);
+    });
+
+    // update a user role
+
+    app.patch("/update-role", verifyJWT, async (req, res) => {
+      const { email, role } = req.body;
+      const result = await userCollection.updateOne(
+        { email },
+        { $set: { role } },
+      );
+
+      await sellerRequestCollection.deleteOne({ email });
+
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "✅Pinged your deployment. You successfully connected to MongoDB!",
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "✅Pinged your deployment. You successfully connected to MongoDB!",
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
   }

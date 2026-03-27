@@ -1,23 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
+import SellerRequestDataRow from "../../../components/Dashboard/TableRows/SellerRequestDataRow";
 import UserDataRow from "../../../components/Dashboard/TableRows/UserDataRow";
+import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
 
-const ManageUsers = () => {
+const SellerRequests = () => {
+  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
 
   const {
-    data: users = [],
+    data: requests = [],
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["users"],
+    queryKey: ["seller-requests", user?.email],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/users`);
+      const res = await axiosSecure.get(`/seller-requests`);
       return res.data;
     },
   });
-  console.log(users);
+  console.log(requests);
 
   if (isLoading) return <LoadingSpinner />;
   return (
@@ -35,12 +38,6 @@ const ManageUsers = () => {
                     >
                       Email
                     </th>
-                    <th
-                      scope="col"
-                      className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
-                    >
-                      Role
-                    </th>
 
                     <th
                       scope="col"
@@ -51,8 +48,12 @@ const ManageUsers = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => (
-                    <UserDataRow refetch={refetch} key={user._id} user={user} />
+                  {requests.map((request) => (
+                    <SellerRequestDataRow
+                      refetch={refetch}
+                      key={request._id}
+                      request={request}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -64,4 +65,4 @@ const ManageUsers = () => {
   );
 };
 
-export default ManageUsers;
+export default SellerRequests;

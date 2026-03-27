@@ -1,12 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import PlantDataRow from "../../../components/Dashboard/TableRows/PlantDataRow";
 import useAuth from "../../../hooks/useAuth";
-import axios from "axios";
 import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
 import toast from "react-hot-toast";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const MyInventory = () => {
   const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
   const {
     data: plants = [],
@@ -15,9 +16,7 @@ const MyInventory = () => {
   } = useQuery({
     queryKey: ["plants", user?.email],
     queryFn: async () => {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/my-inventory/${user?.email}`,
-      );
+      const res = await axiosSecure.get(`/my-inventory/${user?.email}`);
       return res.data;
     },
   });
@@ -28,8 +27,7 @@ const MyInventory = () => {
     mutateAsync,
     reset: mutationReset,
   } = useMutation({
-    mutationFn: async (id) =>
-      await axios.delete(`${import.meta.env.VITE_API_URL}/my-inventory/${id}`),
+    mutationFn: async (id) => await axiosSecure.delete(`/my-inventory/${id}`),
     onSuccess: (data) => {
       console.log(data.data);
 
