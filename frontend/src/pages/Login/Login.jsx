@@ -11,7 +11,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state || "/dashboard/my-orders";
+  const from = location.state || "/dashboard";
 
   // if (loading) return <LoadingSpinner />;
   if (user) return <Navigate to={from} replace={true} />;
