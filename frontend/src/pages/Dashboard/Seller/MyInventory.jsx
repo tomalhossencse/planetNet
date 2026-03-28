@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const MyInventory = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const axiosSecure = useAxiosSecure();
 
   const {
@@ -64,7 +64,7 @@ const MyInventory = () => {
     }
   };
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading || loading) return <LoadingSpinner />;
   return (
     <>
       <div className="container mx-auto px-4 sm:px-8">

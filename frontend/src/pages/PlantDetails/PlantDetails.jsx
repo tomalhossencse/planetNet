@@ -7,11 +7,13 @@ import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useRole from "../../hooks/useRole";
 
 const PlantDetails = () => {
   const axiosSecure = useAxiosSecure();
   let [isOpen, setIsOpen] = useState(false);
   const { id } = useParams();
+  const { role, isRoleLoading } = useRole();
   // console.log(id);
 
   const { data: plant = {}, isLoading } = useQuery({
@@ -27,7 +29,7 @@ const PlantDetails = () => {
     setIsOpen(false);
   };
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading || isRoleLoading) return <LoadingSpinner />;
   const { price, name, image, category, quantity, _id, description, seller } =
     plant;
 
@@ -97,12 +99,12 @@ const PlantDetails = () => {
           <hr className="my-6" />
           <div className="flex justify-between">
             <p className="font-bold text-3xl text-gray-500">Price: {price}$</p>
-            <div>
-              <Button onClick={() => setIsOpen(true)} label="Purchase" />
-            </div>
+            <div>{}</div>
           </div>
           <hr className="my-6" />
-
+          {role === "customer" && (
+            <Button onClick={() => setIsOpen(true)} label="Purchase" />
+          )}
           <PurchaseModal
             plant={plant}
             closeModal={closeModal}
