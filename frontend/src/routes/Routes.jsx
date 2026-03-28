@@ -18,6 +18,8 @@ import PaymentSuccess from "../pages/Payment/PaymentSuccess";
 import SellerRequests from "../pages/Dashboard/Admin/SellerRequests";
 import SellerRoute from "./SellerRoute";
 import AdminRoute from "./AdminRoute";
+import Dashboard from "../Dashboard/Dashboard";
+import DashboardLayout2 from "../layouts/DashboardLayout2";
 
 export const router = createBrowserRouter([
   {
@@ -41,11 +43,73 @@ export const router = createBrowserRouter([
   },
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <SignUp /> },
+  // {
+  //   path: "/dashboard",
+  //   element: (
+  //     <PrivateRoute>
+  //       <DashboardLayout />
+  //     </PrivateRoute>
+  //   ),
+  //   children: [
+  //     {
+  //       index: true,
+  //       element: <Statistics />,
+  //     },
+  //     {
+  //       path: "add-plant",
+  //       element: (
+  //         <SellerRoute>
+  //           <AddPlant />
+  //         </SellerRoute>
+  //       ),
+  //     },
+  //     {
+  //       path: "my-inventory",
+  //       element: (
+  //         <SellerRoute>
+  //           <MyInventory />
+  //         </SellerRoute>
+  //       ),
+  //     },
+  //     {
+  //       path: "manage-orders",
+  //       element: (
+  //         <SellerRoute>
+  //           <ManageOrders />
+  //         </SellerRoute>
+  //       ),
+  //     },
+  //     {
+  //       path: "manage-users",
+  //       element: (
+  //         <AdminRoute>
+  //           <ManageUsers />
+  //         </AdminRoute>
+  //       ),
+  //     },
+  //     {
+  //       path: "seller-requests",
+  //       element: (
+  //         <AdminRoute>
+  //           <SellerRequests />
+  //         </AdminRoute>
+  //       ),
+  //     },
+  //     {
+  //       path: "profile",
+  //       element: <Profile />,
+  //     },
+  //     {
+  //       path: "my-orders",
+  //       element: <MyOrders />,
+  //     },
+  //   ],
+  // },
   {
-    path: "/dashboard",
+    path: "dashboard",
     element: (
       <PrivateRoute>
-        <DashboardLayout />
+        <DashboardLayout2 />
       </PrivateRoute>
     ),
     children: [

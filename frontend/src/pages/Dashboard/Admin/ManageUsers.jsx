@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import UserDataRow from "../../../components/Dashboard/TableRows/UserDataRow";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
+import useAuth from "../../../hooks/useAuth";
 
 const ManageUsers = () => {
   const axiosSecure = useAxiosSecure();
+  const { user } = useAuth();
 
   const {
     data: users = [],
@@ -12,14 +14,15 @@ const ManageUsers = () => {
     refetch,
   } = useQuery({
     queryKey: ["users"],
+    enabled: !!user,
     queryFn: async () => {
       const res = await axiosSecure.get(`/users`);
       return res.data;
     },
   });
-  console.log(users);
-
   if (isLoading) return <LoadingSpinner />;
+  // console.log(users);
+
   return (
     <>
       <div className="container mx-auto px-4 sm:px-8">

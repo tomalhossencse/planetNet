@@ -15,6 +15,7 @@ const SellerRequests = () => {
     refetch,
   } = useQuery({
     queryKey: ["seller-requests", user?.email],
+    enabled: !!user,
     queryFn: async () => {
       const res = await axiosSecure.get(`/seller-requests`);
       return res.data;

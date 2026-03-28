@@ -3,7 +3,8 @@ import { BsFillCartPlusFill, BsFillHouseDoorFill } from "react-icons/bs";
 const SellerStatistics = () => {
   return (
     <div>
-      Seller Statistics Page
+      <h1 className="text-red-500"> Seller Statistics Page</h1>
+
       <div className="mt-12">
         {/* small cards */}
         <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 grow">

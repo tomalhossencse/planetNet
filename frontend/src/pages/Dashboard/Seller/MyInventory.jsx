@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const MyInventory = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
 
   const {
@@ -15,6 +15,7 @@ const MyInventory = () => {
     refetch,
   } = useQuery({
     queryKey: ["plants", user?.email],
+    enabled: !!user,
     queryFn: async () => {
       const res = await axiosSecure.get(`/my-inventory/${user?.email}`);
       return res.data;
@@ -64,7 +65,7 @@ const MyInventory = () => {
     }
   };
 
-  if (isLoading || loading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner />;
   return (
     <>
       <div className="container mx-auto px-4 sm:px-8">
