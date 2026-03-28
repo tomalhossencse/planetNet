@@ -19,7 +19,7 @@ import LoadingSpinner from "../../Shared/LoadingSpinner";
 const Sidebar = () => {
   const { logOut } = useAuth();
   const { role, isRoleLoading } = useRole();
-  const [isActive, setActive] = useState(false);
+  const [isActive, setActive] = useState(true);
 
   // Sidebar Responsive Handler
   const handleToggle = () => {
@@ -70,15 +70,18 @@ const Sidebar = () => {
             <nav>
               {/* Common Menu */}
               <MenuItem
+                handleToggle={handleToggle}
                 icon={BsGraphUp}
                 label="Statistics"
                 address="/dashboard"
               />
               {/* Role-Based Menu */}
 
-              {role === "customer" && <CustomerMenu />}
-              {role === "seller" && <SellerMenu />}
-              {role === "admin" && <AdminMenu />}
+              {role === "customer" && (
+                <CustomerMenu handleToggle={handleToggle} />
+              )}
+              {role === "seller" && <SellerMenu handleToggle={handleToggle} />}
+              {role === "admin" && <AdminMenu handleToggle={handleToggle} />}
             </nav>
           </div>
 
@@ -87,6 +90,7 @@ const Sidebar = () => {
             <hr />
 
             <MenuItem
+              handleToggle={handleToggle}
               icon={FcSettings}
               label="Profile"
               address="/dashboard/profile"
