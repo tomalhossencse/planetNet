@@ -196,7 +196,7 @@ async function run() {
     });
 
     // get all orders for a customer by email
-    app.get("/my-orders/:email", verifyJWT, verifySeller, async (req, res) => {
+    app.get("/my-orders/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
       const result = await orderCollection.find({ customer: email }).toArray();
       res.send(result);
